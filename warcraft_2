@@ -1,0 +1,139 @@
+#include<iostream>
+#include<string>
+#include<iomanip>
+using namespace std;
+class warrior{
+public:
+    int ene;//生命值
+    int number;//编号
+    string weapons[3]={"sword","bomb","arrow"};
+};
+class Dragon:public warrior{
+
+public:
+    int weapon;
+    float morale;//其值为它降生后其司令部剩余生命元的数量除以造dragon所需的生命元数量
+    Dragon(int m,int n,float p){
+        ene=m;
+        number=n;
+        weapon=n%3;
+        morale=p/m;
+        cout<<"It has a "<<weapons[weapon]<<",and it's morale is "<<setiosflags(ios::fixed)<<setprecision(2)<<morale<<endl;
+    }
+
+};
+class Ninja:public warrior{
+public:
+    int weapon[2];
+    Ninja(int m,int n){
+        ene=m;
+        number=n;
+        weapon[0]=n%3;
+        weapon[1]=(n+1)%3;
+        cout<<"It has a "<<weapons[weapon[0]]<<" and a "<<weapons[weapon[1]]<<endl;
+    }
+
+};
+class Iceman:public warrior{
+public:
+    int weapon;
+    Iceman(int m, int n){ene=m;number=n;weapon=n%3;cout<<"It has a "<<weapons[weapon]<<endl;
+    }
+};
+class Lion:public warrior{
+public:
+    int loyalty;
+    Lion(int m,int n,int p){ene=m;number =n;loyalty=p;cout<<"It's loyalty is "<<loyalty<<endl;}
+};
+class Wolf:public warrior{
+public:
+    Wolf(int m, int n){ene=m;number=n;}
+};
+class fortress{
+private:
+    int ene;//生命元
+    int warrior;
+    int num[5];//各种武士的个数
+    int cost[5];
+    int time;
+    string name[5];
+    int pos;//标记目前运行到的位置
+    int min;//标记最小生命元
+    string color;
+
+public:
+
+    int state;//是否已结束
+    fortress(int n):ene(n),time(0),warrior(0),pos(0),state(1){
+    }//初始化函数
+    void set_cost(int a,int b,int c,int d,int e){cost[0]=a;cost[1]=b;cost[2]=c;cost[3]=d;cost[4]=e;}
+    void set_name(int mode){
+        for(int i=0;i<5;i++)
+        {
+            num[i]=0;
+        }
+        if(mode==0){name[0]="iceman";name[1]="lion";name[2]="wolf";name[3]="ninja";name[4]="dragon";color="red";}//red
+        else{name[0]="lion";name[1]="dragon";name[2]="ninja";name[3]="iceman";name[4]="wolf";color="blue";}
+    }
+    void set_min(){
+        int tmp=10000;
+        for(int i=0;i<5;i++)
+        {
+            if(cost[i]<tmp){tmp=cost[i];}
+        }
+        min=tmp;
+    }
+    void create(){
+        if(state==0){return;}
+        cout<<setw(3)<<setfill('0')<<time<<' ';//输出时间
+        if(ene<min){
+            state=0;
+            cout<<color<<" headquarter stops making warriors"<<endl;
+            return;//直接返回
+        }
+        while(cost[pos]>ene)
+        {
+            pos=(pos+1)%5;
+        }//确认生命元足够
+        ene-=cost[pos];
+        warrior++;
+        num[pos]++;
+        cout<<color<<' '<<name[pos]<<" "<<warrior<<" born with strength "<<cost[pos]<<","<<num[pos]<<" "<<name[pos]<<" in "<<color<<" headquarter"<<endl;
+        switch((int)name[pos][0])
+        {
+            case (int)'d':Dragon(cost[pos],warrior,ene);break;//dragon
+            case (int)'i':Iceman(cost[pos],warrior); break;
+            case (int)'w':Wolf(cost[pos],warrior);break;
+            case (int)'l':Lion(cost[pos],warrior,ene);break;
+            case (int)'n':Ninja(cost[pos],warrior);
+        }
+
+
+        pos=(pos+1)%5;//后移
+        time++;
+    }
+};
+int main() {
+    int test;//测试组数
+    int m;
+    int dragon, ninja, iceman, lion, wolf;//各自消耗的生命元
+    int cases = 0;
+    cin >> test;
+    while (test--) {
+        cases++;
+        cin >> m;
+        cin >> dragon >> ninja >> iceman >> lion >> wolf;
+        fortress red(m), blue(m);
+        red.set_cost(iceman, lion, wolf, ninja, dragon);
+        blue.set_cost(lion, dragon, ninja, iceman, wolf);
+        red.set_name(0);
+        blue.set_name(1);
+        red.set_min();
+        blue.set_min();
+        cout << "Case:" << cases << endl;
+        while (red.state || blue.state) {
+            red.create();
+            blue.create();
+        }
+    }
+}
