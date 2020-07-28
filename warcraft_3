@@ -1,0 +1,1594 @@
+#include<iostream>
+
+#include<cstring>
+
+#include<iomanip>
+
+#include<cstdio>
+
+#include<typeinfo>
+
+using namespace std;
+int soldier_HP[5];
+
+char soldier_name[5][20] = { "iceman", "lion", "wolf", "ninja", "dragon" };
+
+char weapon_name[3][20] = { "sword", "bomb", "arrow" };
+
+int soldier_force[5];
+
+int city_number, time_limited;
+class warrior
+
+{
+
+public:
+
+	int HP, force, locate, id;
+
+	int weapon[4];
+
+	int num_weapon;
+
+	warrior() { memset(weapon, 0, sizeof(weapon)); sword_iteration = 0; }
+
+	virtual ~warrior() {}
+
+	int sword_iteration;
+
+	//第n次交手应该使用的武器，n已经考虑过经过循环处理
+
+	int getweapon(int& n)
+
+	{
+		//n代表下次想取的武器数
+		bool flag = false;
+		int tmp = n;
+		if (num_weapon <= 0) return -1;//没有武器
+
+		int array[4];
+		array[0] = 1; array[1] = 3; array[2] = 0; array[3] = 2;
+		while (weapon[n] == 0)
+		{
+			n = array[n];
+		}
+		if (n == 0)
+		{
+			//n = 1;
+			sword_iteration++;
+
+			if (sword_iteration < weapon[0])return 0;
+			else {
+				sword_iteration = 0; n = 1; return 0;
+			}
+		}
+		else if (n == 1) {
+			num_weapon--;
+			weapon[1]--;
+			//n = 2;
+			return 1;
+		}
+		else if (n == 2) {
+			weapon[3]++;
+			weapon[2]--;
+			//n = 0;
+			//num_weapon--;
+			return 2;
+		}
+		else {
+			weapon[3]--;
+			num_weapon--;
+			//n = 0;
+			return 2;
+		}
+		/*
+		if (n <= weapon[0])
+
+		{
+
+			++n;
+
+			if (flag) n = 1;
+
+			return 0;
+
+		}
+
+		else if (n <= weapon[0] + weapon[1])
+
+		{
+
+			weapon[1]--;
+
+			num_weapon--;
+
+			if (flag) n = 1;
+
+			return 1;
+
+		}
+
+		else if (n <= weapon[3] + weapon[0] + weapon[1])
+
+		{
+
+			weapon[3]--;
+
+			num_weapon--;
+
+			if (flag) n = 1;
+
+			return 2;
+
+		}
+
+		else if (n <= num_weapon)
+
+		{
+
+
+
+			weapon[2]--;
+
+			weapon[3]++;
+
+			++n;
+
+			if (flag) n = 1;
+
+			return 2;
+
+		}
+
+		cout << "wrong!" << endl;
+		return -100;
+		*/
+	}
+
+	virtual void out_name() = 0;
+
+	friend class battlefield;
+
+};
+
+
+
+class dragon :public warrior
+
+{
+
+private:
+
+	friend class battlefield;
+
+	//constructor
+
+	dragon(int n, int color) :warrior()
+
+	{
+
+		weapon[n % 3] = 1;
+
+		num_weapon = 1;
+
+		force = soldier_force[4];
+
+		locate = ((color == 0) ? 0 : city_number + 1);
+
+		HP = soldier_HP[4];
+
+		id = n;
+
+	}
+
+	//destructor
+
+	~dragon() {}
+
+	virtual void out_name()
+
+	{
+
+		cout << "dragon " << id;
+
+	}
+
+};
+
+
+
+class ninja :public warrior
+
+{
+
+private:
+
+	friend class battlefield;
+
+	ninja(int n, int color) :warrior()
+
+	{
+
+		weapon[n % 3] = 1;
+
+		weapon[(n + 1) % 3] = 1;
+
+		num_weapon = 2;
+
+		force = soldier_force[3];
+
+		locate = ((color == 0) ? 0 : city_number + 1);
+
+		HP = soldier_HP[3];
+
+		id = n;
+
+	}
+
+	~ninja() {}
+
+	virtual void out_name()
+
+	{
+
+		cout << "ninja " << id;
+
+	}
+
+};
+
+
+
+class iceman :public warrior
+
+{
+
+private:
+
+	friend class battlefield;
+
+	iceman(int n, int color) :warrior()
+
+	{
+
+		weapon[(n % 3)] = 1;
+
+		num_weapon = 1;
+
+		force = soldier_force[0];
+
+		locate = ((color == 0) ? 0 : city_number + 1);
+
+		HP = soldier_HP[0];
+
+		id = n;
+
+	}
+
+	virtual void out_name()
+
+	{
+
+		cout << "iceman " << id;
+
+	}
+
+};
+
+
+
+class lion :public warrior
+
+{
+
+private:
+
+	friend class battlefield;
+
+	int loyalty;
+
+	lion(int n, int color, int hp) :warrior(), loyalty(hp)
+
+	{
+
+		weapon[n % 3] = 1;
+
+		num_weapon = 1;
+
+		force = soldier_force[1];
+
+		locate = ((color == 0) ? 0 : city_number + 1);
+
+		HP = soldier_HP[1];
+
+		id = n;
+
+		cout << "Its loyalty is " << loyalty << endl;
+
+	}
+
+	virtual void out_name()
+
+	{
+
+		cout << "lion " << id;
+
+	}
+
+public:
+
+	static int K;
+
+};
+
+int lion::K = 0;
+
+
+
+class wolf :public warrior
+
+{
+
+	wolf(int n, int color) :warrior()
+
+	{
+
+		num_weapon = 0;
+
+		force = soldier_force[2];
+
+		locate = ((color == 0) ? 0 : city_number + 1);
+
+		HP = soldier_HP[2];
+
+		id = n;
+
+	}
+
+	virtual void out_name()
+
+	{
+
+		cout << "wolf " << id;
+
+	}
+
+private:
+
+	friend class battlefield;
+
+};
+
+
+
+class battlefield
+
+{
+
+private:
+
+	int hour, minute, soldier_total[2], cur_pos[2];
+
+	int element[2];
+
+	string name[2];
+
+	bool produce_end[2];
+
+	warrior*** cities;
+
+	int soldier[5];//order of soldiers
+
+public:
+
+	int arr[2][5] = { {0, 1, 2, 3, 4} ,{1, 4, 3, 0, 2} };
+
+
+	battlefield(int n) :element{ n, n }, hour(0), minute(0), produce_end{ true,true }
+
+	{
+
+		soldier_total[0] = soldier_total[1] = 0;
+
+		cur_pos[0] = cur_pos[1] = -1;
+
+		name[0] = "red";
+
+		name[1] = "blue";
+
+		memset(soldier, 0, sizeof(soldier));
+
+		cities = new warrior * *[city_number + 2];
+
+		for (int i = 0; i < city_number + 2; ++i)
+
+		{
+
+			cities[i] = new warrior * [2];
+
+			memset(cities[i], NULL, sizeof(warrior*) * 2);
+
+		}
+
+		/*
+
+		for (int i = 0; i < city_number + 2; ++i)
+
+		{
+
+			cities[i] = new warrior * [4];
+
+			memset(cities[i], NULL, sizeof(warrior*) * 4);
+
+		}
+		*/
+
+	}
+
+	//输出当前时间
+
+	void out_time()
+
+	{
+
+		cout << setfill('0') << setw(3) << hour << ':' << setfill('0') << setw(2) << minute;
+
+		return;
+
+	}
+
+
+	bool produce(int color)
+
+	{
+
+		if (produce_end[color] == false)
+
+			return false;
+
+		cur_pos[color] = (cur_pos[color] + 1) % 5;
+
+		int t = arr[color][cur_pos[color]];
+
+		if (element[color] >= soldier_HP[t])
+
+		{
+
+			element[color] -= soldier_HP[t];
+
+			soldier[t]++;
+
+			soldier_total[color]++;
+
+			out_time();
+
+			cout << ' ' << name[color] << ' ' << soldier_name[t] << ' ' << soldier_total[color] << " born" << endl;
+
+			int pos = ((color == 0) ? 0 : city_number + 1);
+
+			switch (t)
+
+			{
+
+			case 0: cities[pos][color] = new iceman(soldier_total[color], color); break;
+
+			case 1: cities[pos][color] = new lion(soldier_total[color], color, element[color]); break;
+
+			case 2: cities[pos][color] = new wolf(soldier_total[color], color); break;
+
+			case 3: cities[pos][color] = new ninja(soldier_total[color], color); break;
+
+			case 4: cities[pos][color] = new dragon(soldier_total[color], color); break;
+
+			}
+
+			return true;
+
+		}
+
+		else
+
+		{
+
+			produce_end[color] = false;
+
+			return false;
+
+		}
+
+	}
+
+	//renew location
+
+
+	bool march()
+
+	{
+
+		bool flag = true;
+		for (int i = city_number; i >= 0; i--)
+		{
+			cities[i + 1][0] = cities[i][0];
+		}
+		cities[0][0] = NULL;
+		for (int i = 0; i <= city_number; i++)//行进
+		{
+			cities[i][1]= cities[i + 1][1];
+		}
+		cities[city_number + 1][1] = NULL;
+		for (int i = 0; i <= city_number + 1; i++)
+		{
+			if (cities[i][0] != NULL) {
+				//cities[i][0]->March();
+				if (typeid(*cities[i][0]) == typeid(iceman))
+
+					cities[i][0]->HP -= cities[i][0]->HP / 10;
+				if (i != city_number + 1)
+				{
+					out_time();
+
+					cout << " red "; cities[i][0]->out_name();
+
+					cout << " marched to city " << i << " with " << cities[i][0]->HP << " elements and force " << cities[i][0]->force << endl;
+				}
+				if (i == city_number + 1) {
+					out_time();
+
+					cout << " red "; cities[i][0]->out_name();
+
+					cout << " reached blue headquarter with " << cities[i][0]->HP << " elements and force " << cities[i][0]->force << endl;
+					out_time();
+
+					cout << " blue headquarter was taken" << endl;
+
+					flag = false;
+
+				}
+			}
+			if (cities[i][1] != NULL) {
+				if (typeid(*cities[i][1]) == typeid(iceman))
+
+					cities[i][1]->HP -= cities[i][1]->HP / 10;
+				if (i != 0)
+				{
+					out_time();
+
+					cout << " blue "; cities[i][1]->out_name();
+
+					cout << " marched to city " << i << " with " << cities[i][1]->HP << " elements and force " << cities[i][1]->force << endl;
+				}
+				if (i == 0) {
+
+					out_time();
+
+					cout << " blue "; cities[i][1]->out_name();
+
+					cout << " reached red headquarter with " << cities[i][1]->HP << " elements and force " << cities[i][1]->force << endl;
+
+					out_time();
+
+					cout << " red headquarter was taken" << endl;
+
+					flag = false;
+
+				}
+			}
+		}
+
+
+		return flag;
+
+	}
+
+	//judge whether lion run away
+
+	void run_away()
+
+	{
+
+		for (int i = 0; i <= city_number + 1; ++i)
+
+		{
+
+			for (int t = 0; t < 2; ++t)
+
+			{
+
+				if (cities[i][t] != NULL && typeid(*cities[i][t]) == typeid(lion))
+
+				{
+
+					auto p = (lion*)cities[i][t];
+
+					if (p->loyalty <= 0)
+
+					{
+
+						out_time();
+
+						cout << ' ' << name[t];
+
+						cout << " lion " << cities[i][t]->id << " ran away" << endl;
+
+						delete cities[i][t];
+
+						cities[i][t] = NULL;
+
+						continue;
+
+					}
+
+					p->loyalty -= lion::K;
+
+				}
+
+			}
+
+
+
+		}
+
+		return;
+
+	}
+
+
+
+	//winner snatch loser's weapon
+
+	void snatch_weapon(warrior* p, warrior* q)
+
+	{
+
+		for (int i = 0; i < 4; ++i)
+
+		{
+
+			while (q->weapon[i] > 0 && p->num_weapon < 10)
+
+			{
+
+				p->weapon[i]++;
+
+				q->weapon[i]--;
+
+				p->num_weapon++;
+
+			}
+
+		}
+
+		return;
+
+	}
+
+	void out_weapon(int t)
+
+	{
+
+		switch (t)
+
+		{
+
+		case 0: cout << weapon_name[0]; break;
+
+		case 1: cout << weapon_name[1]; break;
+
+		case 2: cout << weapon_name[2]; break;
+
+		case 3: cout << weapon_name[2]; break;
+
+		}
+
+		return;
+
+	}
+
+
+	void w_snatch_weapon(warrior* p, warrior* q)
+
+	{
+
+		//bool flag = true;
+
+
+
+		int t = 0, s = 0;
+
+		while (q->weapon[t] == 0)++t;
+
+		if (10 - p->num_weapon <= q->weapon[t])
+
+		{
+
+			p->weapon[t] += 10 - p->num_weapon;
+
+			s += 10 - p->num_weapon;
+
+			p->num_weapon = 10;
+
+			q->num_weapon -= s;
+
+			q->weapon[t] -= s;
+
+			return;
+
+		}
+
+		else
+
+		{
+
+			p->weapon[t] += q->weapon[t];
+
+			s += q->weapon[t];
+
+			p->num_weapon += q->weapon[t];
+
+			q->weapon[t] -= s;
+
+			q->num_weapon -= s;
+
+			if (t == 2 && q->weapon[3] > 0)
+
+			{
+
+				t = 3;
+
+				if (10 - p->num_weapon <= q->weapon[t])
+
+				{
+
+					p->weapon[t] += 10 - p->num_weapon;
+
+					s += 10 - p->num_weapon;
+
+					p->weapon[t] -= 10 - p->num_weapon;
+
+					p->num_weapon -= 10 - p->num_weapon;
+
+					p->num_weapon = 10;
+
+				}
+
+				else
+
+				{
+
+					p->weapon[t] += q->weapon[t];
+
+					s += q->weapon[t];
+
+					q->num_weapon -= q->weapon[t];
+
+					p->num_weapon += q->weapon[t];
+
+					q->weapon[t] = 0;
+
+				}
+
+			}
+
+			cout << s << ' ';
+
+			out_weapon(t);
+
+			return;
+
+		}
+
+	}
+
+
+
+	//wolf snatch enemy's weapon
+
+	void snatch()
+
+	{
+
+		for (int i = 1; i <= city_number; ++i)
+
+		{
+
+			warrior* p[2] = { cities[i][0], cities[i][1] };
+
+			if (p[0] != NULL && p[1] != NULL)
+
+			{
+
+
+
+				if (typeid(*p[0]) != typeid(wolf) && typeid(*p[1]) != typeid(wolf))
+
+					continue;
+
+				else if (typeid(*p[0]) != typeid(wolf))
+
+				{
+
+					if (p[0]->num_weapon == 0 || p[1]->num_weapon == 10)
+
+						continue;
+
+					out_time(); cout << " blue "; p[1]->out_name();
+
+					cout << " took ";
+
+					w_snatch_weapon(p[1], p[0]);
+
+					cout << " from red ";
+
+					p[0]->out_name(); cout << " in city " << i << endl;
+
+				}
+
+				else if (typeid(*p[1]) != typeid(wolf))
+
+				{
+
+					if (p[1]->num_weapon == 0 || p[0]->num_weapon == 10)
+
+						continue;
+
+					out_time(); cout << " red "; p[0]->out_name();
+
+					cout << " took ";
+
+					w_snatch_weapon(p[0], p[1]);
+
+					cout << " from blue ";
+
+					p[1]->out_name(); cout << " in city " << i << endl;
+
+				}
+
+				else
+
+					continue;
+
+
+
+			}
+
+		}
+
+	}
+
+	
+
+	//fight
+
+	void fight()
+
+	{
+
+		for (int i = 1; i <= city_number; ++i)
+
+		{
+
+			if (cities[i][0] == NULL || cities[i][1] == NULL)continue;
+			int w; 
+			int key[2] = { 0,0 }; 
+			int flag;
+			int h;
+			while (cities[i][0]!=NULL && cities[i][1]!=NULL && cities[i][0]->HP > 0 && cities[i][1]->HP > 0)
+			{
+				int blue_ele = cities[i][1]->HP;
+				int red_ele = cities[i][0]->HP;
+				if (i % 2 == 1) {
+					w=cities[i][0]->getweapon(key[0]);
+					
+					switch (w)
+
+					{
+
+					case 0:
+
+						cities[i][1]->HP -= cities[i][0]->force / 5; break;
+
+					case 1:
+
+						h = cities[i][0]->force * 2 / 5;
+
+						cities[i][1]->HP -= h;
+
+						if (typeid(*cities[i][0]) != typeid(ninja))
+
+							cities[i][0]->HP -= h / 2;
+						
+
+						break;
+
+					case 2:
+
+						cities[i][1]->HP -= cities[i][0]->force * 3 / 10; break;
+
+					default:
+
+						break;
+
+					}
+					if (cities[i][1]->HP>0 &&cities[i][0]->HP>0) {
+						w = cities[i][1]->getweapon(key[1]);
+						
+						switch (w)
+
+						{
+
+						case 0:
+
+							cities[i][0]->HP -= cities[i][1]->force / 5; break;
+
+						case 1:
+
+
+							h = cities[i][1]->force * 2 / 5;
+
+							cities[i][0]->HP -= h;
+
+							if (typeid(*cities[i][1]) != typeid(ninja))
+
+								cities[i][1]->HP -= h / 2;
+
+
+							break;
+
+						case 2:
+
+							cities[i][0]->HP -= cities[i][1]->force * 3 / 10; break;
+
+						default:
+
+							break;
+
+						}
+					}
+				}
+				else {
+					w = cities[i][1]->getweapon(key[1]);
+					
+					switch (w)
+
+					{
+
+					case 0:
+
+						cities[i][0]->HP -= cities[i][1]->force / 5; break;
+
+					case 1:
+
+
+						h = cities[i][1]->force * 2 / 5;
+
+						cities[i][0]->HP -= h;
+
+						if (typeid(*cities[i][1]) != typeid(ninja))
+
+							cities[i][1]->HP -= h / 2;
+
+
+						break;
+
+					case 2:
+
+						cities[i][0]->HP -= cities[i][1]->force * 3 / 10; break;
+
+					default:
+
+						break;
+
+					}
+					if (cities[i][0] ->HP>0 && cities[i][1]->HP>0)
+					{
+						w = cities[i][0]->getweapon(key[0]);
+						switch (w)
+
+						{
+
+						case 0:
+
+							cities[i][1]->HP -= cities[i][0]->force / 5; break;
+
+						case 1:
+
+
+							h = cities[i][0]->force * 2 / 5;
+
+							cities[i][1]->HP -= h;
+
+							if (typeid(*cities[i][0]) != typeid(ninja))
+
+								cities[i][0]->HP -= h / 2;
+
+
+							break;
+
+						case 2:
+
+							cities[i][1]->HP -= cities[i][0]->force * 3 / 10; break;
+
+						default:
+
+							break;
+
+						}
+					}
+				}
+				//cout << blue_ele << " " << cities[i][1]->HP << " " << cities[i][0]->HP << " " << red_ele << " " << cities[i][0]->num_weapon << " " << cities[i][0]->weapon[0] << " " << cities[i][1]->num_weapon << " "<<cities[i][1]->weapon[0] << endl;
+				if (blue_ele == cities[i][1]->HP && cities[i][0]->HP == red_ele && cities[i][0]->num_weapon == cities[i][0]->weapon[0] && cities[i][1]->num_weapon == cities[i][1]->weapon[0])break;
+			}
+			if (cities[i][0]->HP > 0 && cities[i][1]->HP > 0)//alive
+			{
+				flag = 0;
+			}
+			else if(cities[i][0]->HP > 0 && cities[i][1]->HP <= 0){//red win
+				flag = 1;
+			}
+			else if (cities[i][0]->HP <= 0 && cities[i][1]->HP > 0) {//blue win
+				flag = 2;
+			}
+			else {
+				flag = 3;
+			}
+			out_time();
+
+			switch (flag)
+
+			{
+
+			case 0:
+
+				cout << " both red ";
+
+				cities[i][0]->out_name();
+
+				cout << " and blue ";
+
+				cities[i][1]->out_name();
+
+				cout << " were alive in city " << i << endl;
+
+				break;
+
+			case 3:
+
+				cout << " both red ";
+
+				cities[i][0]->out_name();
+
+				cout << " and blue ";
+
+				cities[i][1]->out_name();
+
+				cout << " died in city " << i << endl;
+
+				delete cities[i][0];
+
+				delete cities[i][1];
+
+				cities[i][0] = NULL;
+
+				cities[i][1] = NULL;
+
+				break;
+
+			case 1:
+
+				cout << " red ";
+
+				cities[i][0]->out_name();
+
+				cout << " killed blue ";
+
+				cities[i][1]->out_name();
+
+				printf(" in city %d remaining %d elements\n", i, cities[i][0]->HP);
+
+				snatch_weapon(cities[i][0], cities[i][1]);
+
+				delete cities[i][1];
+
+				cities[i][1] = NULL;
+
+				break;
+
+			case 2:
+
+				cout << " blue ";
+
+				cities[i][1]->out_name();
+
+				cout << " killed red ";
+
+				cities[i][0]->out_name();
+
+				printf(" in city %d remaining %d elements\n", i, cities[i][1]->HP);
+
+				snatch_weapon(cities[i][1], cities[i][0]);
+
+				delete cities[i][0];
+
+				cities[i][0] = NULL;
+
+				break;
+
+			default:
+
+				break;
+
+			}
+
+			for (int t = 0; t < 2; ++t)
+
+			{
+
+				if (cities[i][t] != NULL && typeid(*cities[i][t]) == typeid(dragon))
+
+				{
+
+					out_time(); cout << ' ' << name[t] << ' ';
+
+					cities[i][t]->out_name();
+
+					cout << " yelled in city " << i << endl;
+
+				}
+
+			}
+			/*
+			int r = i % 2, L = r ^ 1, n[2] = { 1, 1 }, w, flag = 5, check[4] = { 0 }, cnt = 0;
+
+			while (true)
+
+			{
+
+				//判断是否局势改变，若不改变则为平局
+
+				r = r ^ 1;
+
+				L = L ^ 1;
+
+				if (cnt == 0)
+
+				{
+
+					if (check[0] == cities[i][0]->HP && check[1] == cities[i][1]->HP && check[2] == cities[i][0]->num_weapon && check[3] == cities[i][1]->num_weapon)
+
+					{
+
+						flag = 0;//all alive
+
+						break;
+
+					}
+
+					check[0] = cities[i][0]->HP;
+
+					check[1] = cities[i][1]->HP;
+
+					check[2] = cities[i][0]->num_weapon;
+
+					check[3] = cities[i][1]->num_weapon;
+
+					cnt = 10;
+
+				}
+
+				cnt--;
+
+
+
+				if (cities[i][L]->num_weapon == 0 && cities[i][r]->num_weapon == 0)
+
+				{
+
+					flag = 0;//alive
+
+					break;
+
+				}
+
+				if (cities[i][r]->num_weapon == 0)
+
+					continue;
+
+				w = cities[i][r]->getweapon(n[r]);
+
+
+				int h;
+
+				switch (w)
+
+				{
+
+				case 0:
+
+					cities[i][L]->HP -= cities[i][r]->force / 5; break;
+
+				case 1:
+
+					h = cities[i][r]->force * 2 / 5;
+
+					cities[i][L]->HP -= h;
+
+					if (typeid(*cities[i][r]) != typeid(ninja))
+
+						cities[i][r]->HP -= h / 2;
+
+					break;
+
+				case 2:
+
+					cities[i][L]->HP -= cities[i][r]->force * 3 / 10; break;
+
+				default:
+
+					break;
+
+				}
+
+				if (cities[i][L]->HP <= 0 && cities[i][r]->HP <= 0)
+
+				{
+
+					flag = 3;//all died
+
+					break;
+
+				}
+
+				else if (cities[i][L]->HP <= 0)
+
+				{
+
+					if (L == 0)
+
+					{
+
+						flag = 2; //blue win
+
+						break;
+
+					}
+
+					else
+
+					{
+
+						flag = 1; //red win
+
+						break;
+
+					}
+
+				}
+
+				else if (cities[i][r]->HP <= 0)
+
+				{
+
+					if (r == 0)
+
+					{
+
+						flag = 2; //blue win
+
+						break;
+
+					}
+
+					else
+
+					{
+
+						flag = 1; //red win
+
+						break;
+
+					}
+
+				}
+
+			}
+
+			out_time();
+
+			switch (flag)
+
+			{
+
+			case 0:
+
+				cout << " both red ";
+
+				cities[i][0]->out_name();
+
+				cout << " and blue ";
+
+				cities[i][1]->out_name();
+
+				cout << " were alive in city " << i << endl;
+
+				break;
+
+			case 3:
+
+				cout << " both red ";
+
+				cities[i][0]->out_name();
+
+				cout << " and blue ";
+
+				cities[i][1]->out_name();
+
+				cout << " died in city " << i << endl;
+
+				delete cities[i][0];
+
+				delete cities[i][1];
+
+				cities[i][0] = NULL;
+
+				cities[i][1] = NULL;
+
+				break;
+
+			case 1:
+
+				cout << " red ";
+
+				cities[i][0]->out_name();
+
+				cout << " killed blue ";
+
+				cities[i][1]->out_name();
+
+				printf(" in city %d remaining %d elements\n", i, cities[i][0]->HP);
+
+				snatch_weapon(cities[i][0], cities[i][1]);
+
+				delete cities[i][1];
+
+				cities[i][1] = NULL;
+
+				break;
+
+			case 2:
+
+				cout << " blue ";
+
+				cities[i][1]->out_name();
+
+				cout << " killed red ";
+
+				cities[i][0]->out_name();
+
+				printf(" in city %d remaining %d elements\n", i, cities[i][1]->HP);
+
+				snatch_weapon(cities[i][1], cities[i][0]);
+
+				delete cities[i][0];
+
+				cities[i][0] = NULL;
+
+				break;
+
+			default:
+
+				break;
+
+			}
+
+			for (int t = 0; t < 2; ++t)
+
+			{
+
+				if (cities[i][t] != NULL && typeid(*cities[i][t]) == typeid(dragon))
+
+				{
+
+					out_time(); cout << ' ' << name[t] << ' ';
+
+					cities[i][t]->out_name();
+
+					cout << " yelled in city " << i << endl;
+
+				}
+
+			}
+			*/
+
+
+		}
+
+
+
+	}
+
+
+
+	//base report condition
+
+	void base_report()
+
+	{
+
+		out_time();
+
+		printf(" %d elements in red headquarter\n", element[0]);
+
+		out_time();
+
+		printf(" %d elements in blue headquarter\n", element[1]);
+
+		return;
+
+	}
+
+
+
+	//soldier report
+
+	void soldier_report()
+
+	{
+
+		for (int i = 0; i < city_number + 1; ++i)
+
+		{
+
+			for (int t = 0; t < 2; ++t)
+
+				if (cities[i][t] != NULL)
+
+				{
+
+					out_time();
+
+					cout << ' ' << name[t] << ' ';
+
+					cities[i][t]->out_name();
+
+					cout << " has " << cities[i][t]->weapon[0] << " sword " << cities[i][t]->weapon[1] << " bomb "
+
+						<< cities[i][t]->weapon[2] + cities[i][t]->weapon[3] << " arrow and " << cities[i][t]->HP << " elements" << endl;
+
+				}
+
+		}
+
+		return;
+
+	}
+
+
+
+	//check whether time is legal
+
+	bool check_time()
+
+	{
+
+		if (hour * 60 + minute > time_limited)
+
+			return false;
+
+		else
+
+			return true;
+
+	}
+
+
+
+	bool run()
+
+	{
+
+		minute = 0;
+
+		if (!check_time()) return false;
+
+
+
+		produce(0);
+
+		produce(1);
+
+
+
+		minute = 5;
+
+		if (!check_time()) return false;
+
+
+
+		run_away();
+
+
+
+		minute = 10;
+
+		if (!check_time()) return false;
+
+
+
+		if (!march())
+
+			return false;
+
+
+
+		minute = 35;
+
+		if (!check_time()) return false;
+
+
+
+		snatch();
+
+
+
+		minute = 40;
+
+		if (!check_time()) return false;
+
+
+
+		fight();
+
+
+
+		minute = 50;
+
+		if (!check_time()) return false;
+
+		base_report();
+
+
+
+		minute = 55;
+
+		if (!check_time()) return false;
+
+		soldier_report();
+		hour++;
+
+		return true;
+
+	}
+
+};
+
+int main()
+
+{
+
+	int n, element, cases = 0;
+
+	cin >> n;
+
+	while (n--)
+
+	{
+
+		cout << "Case " << ++cases << ':' << endl;
+
+		cin >> element >> city_number >> lion::K >> time_limited;
+
+		battlefield Battle(element);
+
+		cin >> soldier_HP[4] >> soldier_HP[3] >> soldier_HP[0] >> soldier_HP[1] >> soldier_HP[2];
+
+		cin >> soldier_force[4] >> soldier_force[3] >> soldier_force[0] >> soldier_force[1] >> soldier_force[2];
+
+		while (Battle.run());
+
+
+
+	}
+
+	return 0;
+
+}
